@@ -16,11 +16,14 @@ import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.lenovo.smartShop.R;
 import com.lenovo.smartShop.activity.ShopListActivity;
+import com.lenovo.smartShop.bean.AppDetailInfoBean;
+import com.lenovo.smartShop.bean.AppDownLoadBean;
 import com.lenovo.smartShop.bean.AppListBean;
 import com.lenovo.smartShop.model.DownLoadModel;
 import com.lenovo.smartShop.utils.DataFormatConvert;
 //import com.lenovo.smartShop.utils.DownLoadManager;
 import com.lenovo.smartShop.utils.HttpUtils;
+import com.lenovo.smartShop.utils.OkHttpClientUtil;
 import com.lenovo.smartShop.utils.SCPackageManager;
 import com.lenovo.smartShop.utils.StateMachine;
 import com.lenovo.smartShop.utils.WifiControl;
@@ -39,6 +42,7 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
+import okhttp3.Request;
 import retrofit2.http.PATCH;
 
 /**
@@ -132,7 +136,6 @@ public class ListViewAdapter extends BaseAdapter {
         //Log.d(TAG, "mUrl = " + mUrl);
         Log.d(TAG, "downLoadState = " + downLoadState);
         // 按钮状态
-        int currentPencent = 0;
         switch (downLoadState) {
             case DownLoadButton.STATE_NORMAL:
                 //Log.d(TAG, "Normal");
@@ -141,15 +144,6 @@ public class ListViewAdapter extends BaseAdapter {
             case DownLoadButton.STATE_DOWNLOADING:
                 //Log.d(TAG, "Downloading");
                 holder.btn_item.setState(packageName, DownLoadButton.STATE_DOWNLOADING);
-                int percent = listdata.get(position).getProgress();
-                Log.d(TAG, "============== STATE_DOWNLOADING " + percent);
-                ListView listView = ShopListActivity.listView;
-                if (percent > currentPencent && position >= listView.getFirstVisiblePosition() && position <= listView.getLastVisiblePosition()) {
-                    currentPencent = percent;
-                    int positionInListView = position - listView.getFirstVisiblePosition();
-                    DownLoadButton btn = listView.getChildAt(positionInListView).findViewById(R.id.btn_item);
-                    btn.setDownLoadProgress(DownLoadButton.STATE_DOWNLOADING, percent, packageName);
-                }
                 break;
             case DownLoadButton.STATE_INSTALL:
                 //Log.d(TAG, "Install");
@@ -169,10 +163,6 @@ public class ListViewAdapter extends BaseAdapter {
 
         // add taskinfo
         boolean isExit = false;
-        /*final String downLoadUrl = null;
-        if(mDownLoadUrlList.size() != 0){
-            downLoadUrl = mDownLoadUrlList.get(position);
-        }*/
         if(listdata.size() != 0){
             for (TaskInfo taskInfo : listdata){
                 if(taskInfo.getFileName().equals(packageName)){
@@ -193,15 +183,12 @@ public class ListViewAdapter extends BaseAdapter {
             public void onClick(View v) {
                 if(listdata.size() > position){
                     downLoadState = StateMachine.getInstance().getDownLoadState(packageName);
-                    downLoadUrl = mDownLoadUrlList.get(position);
+                    //downLoadUrl = mDownLoadUrlList.get(position);
                     Log.d(TAG, "position = " + position + "\n" +"packageName = " + packageName + "\n" + "downLoadUrl = " + downLoadUrl);
                     if(downLoadState == DownLoadButton.STATE_NORMAL){
                         if(WifiControl.wifiIsConnected()){
                             Log.d(TAG, "==============STATE_NORMAL " + downLoadUrl);
-                            listdata.get(position).setOnDownloading(true);
-                            downLoadManager.addTask(packageName, downLoadUrl, packageName);
-                            //downLoadManager.startTask(listdata.get(position).getTaskID());
-                            holder.btn_item.setState(packageName, DownLoadButton.STATE_DOWNLOADING);
+                            getDownLoadUrl(mUrl, packageName);
                         }else {
                             Toast.makeText(context, "网络未连接,请检查", Toast.LENGTH_SHORT).show();
                         }
@@ -338,26 +325,40 @@ public class ListViewAdapter extends BaseAdapter {
         DownLoadButton btn_item;
     }
 
+    private int currentPencent;
     private class DowloadManagerListener implements DownLoadListener{
 
         @Override
         public void onStart(SQLDownLoadInfo sqlDownLoadInfo) {
             Log.d(TAG, "==============onStart " + sqlDownLoadInfo.getTaskID());
+            currentPencent = 0;
         }
 
         @Override
         public void onProgress(SQLDownLoadInfo sqlDownLoadInfo, boolean isSupportBreakpoint) {
             Log.d(TAG, "==============onProcess " + sqlDownLoadInfo.getTaskID());
+            int position = 0;
             //根据监听到的信息查找列表相对应的任务，更新相应任务的进度
-            for(TaskInfo taskInfo : listdata){
+            for(int i = 0; i < listdata.size(); i++){
+                TaskInfo taskInfo = listdata.get(i);
                 if(taskInfo.getTaskID().equals(sqlDownLoadInfo.getTaskID())){
                     taskInfo.setDownFileSize(sqlDownLoadInfo.getDownloadSize());
                     taskInfo.setFileSize(sqlDownLoadInfo.getFileSize());
+                    position = i;
                     ListViewAdapter.this.notifyDataSetChanged();
                     break;
                 }
             }
-            holder.btn_item.setState(sqlDownLoadInfo.getTaskID(), DownLoadButton.STATE_DOWNLOADING);
+            int percent = listdata.get(position).getProgress();
+            ListView listView = ShopListActivity.listView;
+            Log.d(TAG, "============== STATE_DOWNLOADING " + percent + " " + currentPencent + "\n" + listView.getFirstVisiblePosition() + "\n" + listView.getLastVisiblePosition());
+            if (percent > currentPencent && position >= listView.getFirstVisiblePosition() && position <= listView.getLastVisiblePosition()) {
+                currentPencent = percent;
+                int positionInListView = position - listView.getFirstVisiblePosition();
+                DownLoadButton btn = listView.getChildAt(positionInListView).findViewById(R.id.btn_item);
+                Log.d(TAG, "==============  " + percent);
+                btn.setDownLoadProgress(DownLoadButton.STATE_DOWNLOADING, percent, sqlDownLoadInfo.getTaskID());
+            }
         }
 
         @Override
@@ -386,6 +387,39 @@ public class ListViewAdapter extends BaseAdapter {
             holder.btn_item.setState(packageName, DownLoadButton.STATE_INSTALLING);
             com.lenovo.smartShop.utils.DownLoadManager.getInstance(context).installApk(new File(FileHelper.getFileDefaultPath(), "/(" + sqlDownLoadInfo.getFileName() + ")" + sqlDownLoadInfo.getFileName()));
         }
+    }
+
+    private void getDownLoadUrl(String url, final String packageName){
+        OkHttpClientUtil.getInstance()._getAsyn(url, new OkHttpClientUtil.ResultCallback<AppDetailInfoBean>() {
+            @Override
+            public void onError(Request request, Exception e) {
+
+            }
+
+            @Override
+            public void onResponse(AppDetailInfoBean response) {
+                String downLoadInfo = response.getData().getAppInfo().getAppDownloadAdr();
+                getDownLoadInfo(downLoadInfo, packageName);
+            }
+        });
+    }
+
+    private void getDownLoadInfo(String url, final String packageName){
+        OkHttpClientUtil.getInstance()._getAsyn(url, new OkHttpClientUtil.ResultCallback<AppDownLoadBean>() {
+            @Override
+            public void onError(Request request, Exception e) {
+
+            }
+
+            @Override
+            public void onResponse(AppDownLoadBean response) {
+                String downLoadUrl = response.getData().getDownurl();
+                Log.d(TAG, "pkg = " + packageName + " / downLoadUrl = " + downLoadUrl);
+                //listdata.get(position).setOnDownloading(true);
+                downLoadManager.addTask(packageName, downLoadUrl, packageName);
+                holder.btn_item.setState(packageName, DownLoadButton.STATE_DOWNLOADING);
+            }
+        });
     }
 
 
