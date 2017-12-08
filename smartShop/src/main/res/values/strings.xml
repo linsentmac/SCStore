@@ -1,0 +1,12 @@
+<resources>
+    <string name="app_name">应用商店</string>
+    <string name="app_Info">应用详情</string>
+    <string name="detail_info">详情</string>
+    <string name="download">下载</string>
+    <string name="install">安装</string>
+    <string name="introduce">简介</string>
+    <string name="download_complete">打开</string>
+    <string name="downloading">下载中</string>
+    <string name="waitting">继续下载</string>
+    <string name="installing">安装中</string>
+</resources>

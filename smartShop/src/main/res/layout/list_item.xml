@@ -1,0 +1,111 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="90dp"
+    android:descendantFocusability="blocksDescendants"
+    >
+
+    <ImageView
+        android:id="@+id/iv_item"
+        android:layout_width="50dp"
+        android:layout_height="50dp"
+        android:scaleType="fitXY"
+        android:layout_centerVertical="true"
+        android:layout_marginLeft="10dp"
+        />
+
+    <RelativeLayout
+        android:layout_width="wrap_content"
+        android:layout_height="match_parent"
+        android:layout_toRightOf="@+id/iv_item"
+        android:layout_marginLeft="10dp"
+        android:layout_marginTop="10dp"
+        >
+
+        <TextView
+            android:id="@+id/tv_item"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="null"
+            android:layout_marginTop="5dp"
+            />
+
+        <TextView
+            android:id="@+id/tv_item_download"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="789万次安装"
+            android:layout_centerVertical="true"/>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerVertical="true"
+            android:layout_toRightOf="@+id/tv_item_download"
+            android:layout_marginLeft="5dp"
+            android:paddingBottom="7dp"
+            android:text="."/>
+
+        <TextView
+            android:id="@+id/tv_item_size"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerVertical="true"
+            android:layout_toRightOf="@+id/tv_item_download"
+            android:layout_marginLeft="13dp"
+            android:text="28.61M"
+            />
+
+        <TextView
+            android:id="@+id/tv_item_desc"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/tv_item_size"
+            android:layout_marginTop="4dp"
+            android:text="生活"/>
+
+    </RelativeLayout>
+
+
+
+    <!--<Button
+        android:id="@+id/btn_item"
+        android:layout_width="70dp"
+        android:layout_height="30dp"
+        android:text="安装"
+        android:textColor="@color/color_white"
+        android:background="@color/btn_download_color"
+        android:layout_centerVertical="true"
+        android:layout_marginRight="10dp"
+        android:layout_alignParentRight="true"/>-->
+
+    <com.lenovo.smartShop.view.DownLoadButton
+        android:id="@+id/btn_item"
+        android:layout_width="70dp"
+        android:visibility="invisible"
+        android:layout_height="40px"
+        android:textColor="@android:color/white"
+        app:normalBackground="@drawable/rect_normal_bg"
+        app:downLoadedBackground="@drawable/rect_downloaded_bg"
+        app:downLoadCompleteBackground="@drawable/rect_downloaded_bg"
+        android:textSize="15sp"
+        app:textColor="@color/color_white"
+        android:layout_centerVertical="true"
+        android:layout_marginRight="10dp"
+        android:layout_alignParentRight="true"
+        />
+
+    <TextView
+        android:id="@+id/percent_tv"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text=""
+        android:visibility="gone"
+        android:layout_below="@+id/btn_item"
+        android:layout_marginTop="5dp"
+        android:layout_marginRight="10dp"
+        android:layout_alignParentRight="true"
+        />
+
+</RelativeLayout>
