@@ -24,11 +24,13 @@ public class InstalledReceiver extends BroadcastReceiver {
             Log.i(TAG, "卸载了 :" + packageName);
             SCPackageManager.deleteInstallPackage(packageName);
             StateMachine.getInstance().setDownLoadState(packageName, DownLoadButton.STATE_NORMAL);
+            StateMachine.getInstance().refreshAdapter();
         }else if(intent.getAction().equals("android.intent.action.PACKAGE_ADDED")){
             //String packageName = intent.getDataString();
             Log.i(TAG, "安装了 :" + packageName);
             SCPackageManager.deleteInstallPackage(packageName);
             StateMachine.getInstance().setDownLoadState(packageName, DownLoadButton.STATE_COMPLETE);
+            StateMachine.getInstance().refreshAdapter();
         }else if(intent.getAction().equals("android.intent.action.PACKAGES_SUSPENDED")){
             Log.i(TAG, "包被停用了 :" + packageName);
         }

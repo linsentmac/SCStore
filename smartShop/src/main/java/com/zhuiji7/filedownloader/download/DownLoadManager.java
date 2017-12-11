@@ -74,7 +74,7 @@ public class DownLoadManager {
         recoverData(mycontext, userID);
     }
     
-   
+
     /**
      * (从数据库恢复下载任务信息) 
      * @param context 上下文
@@ -232,7 +232,9 @@ public class DownLoadManager {
         for (int i = 0; i < taskSize; i++) {
             DownLoader deletedownloader = taskList.get(i);
             if (deletedownloader.getTaskID().equals(taskID)) {
-                deletedownloader.destroy();
+                //deletedownloader.destroy();
+                // modify by tmac
+                deletedownloader.destroyDownLoadTask();
                 taskList.remove(deletedownloader);
                 break;
             }
@@ -327,6 +329,14 @@ public class DownLoadManager {
         for (int i = 0; i < listSize; i++) {
             DownLoader deletedownloader = taskList.get(i);
             deletedownloader.stop();
+        }
+    }
+
+    public void saveAllTaskInfo(){
+        int listSize = taskList.size();
+        for (int i = 0; i < listSize; i++) {
+            DownLoader deletedownloader = taskList.get(i);
+            deletedownloader.saveTask();
         }
     }
 

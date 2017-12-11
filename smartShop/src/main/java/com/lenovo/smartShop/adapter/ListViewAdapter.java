@@ -71,6 +71,18 @@ public class ListViewAdapter extends BaseAdapter {
         mDownLoadUrlList = downLoadUrlList;
         listdata = downLoadManager.getAllTask();
         downLoadManager.setAllTaskListener(new DowloadManagerListener());
+        Log.d(TAG, "task size = " + listdata.size());
+        for(TaskInfo taskInfo : listdata){
+            Log.d(TAG, "task progress = " + taskInfo.getProgress());
+            if(taskInfo.getProgress() > 0){
+                StateMachine.getInstance().setDownLoadState(taskInfo.getTaskID(), DownLoadButton.STATE_WAITTING);
+            }
+        }
+    }
+
+    public void setTaskInfoList(ArrayList<TaskInfo> listdata){
+        this.listdata = listdata;
+        this.notifyDataSetInvalidated();
     }
 
     @Override
@@ -161,33 +173,15 @@ public class ListViewAdapter extends BaseAdapter {
                 break;
         }
 
-        // add taskinfo
-        boolean isExit = false;
-        if(listdata.size() != 0){
-            for (TaskInfo taskInfo : listdata){
-                if(taskInfo.getFileName().equals(packageName)){
-                    isExit = true;
-                    break;
-                }
-            }
-        }
-        if(!isExit){
-            TaskInfo taskInfo = new TaskInfo();
-            taskInfo.setFileName(packageName);
-            taskInfo.setTaskID(packageName);
-            taskInfo.setOnDownloading(false);
-            listdata.add(taskInfo);
-        }
         holder.btn_item.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if(listdata.size() > position){
+                //if(listdata.size() > position){
                     downLoadState = StateMachine.getInstance().getDownLoadState(packageName);
-                    //downLoadUrl = mDownLoadUrlList.get(position);
-                    Log.d(TAG, "position = " + position + "\n" +"packageName = " + packageName + "\n" + "downLoadUrl = " + downLoadUrl);
+                    Log.d(TAG, "position = " + position + "\n" +"packageName = " + packageName);
                     if(downLoadState == DownLoadButton.STATE_NORMAL){
                         if(WifiControl.wifiIsConnected()){
-                            Log.d(TAG, "==============STATE_NORMAL " + downLoadUrl);
+                            Log.d(TAG, "============== ADD_TASK ");
                             getDownLoadUrl(mUrl, packageName);
                         }else {
                             Toast.makeText(context, "网络未连接,请检查", Toast.LENGTH_SHORT).show();
@@ -202,18 +196,20 @@ public class ListViewAdapter extends BaseAdapter {
                     } else if (downLoadState == DownLoadButton.STATE_WAITTING){
                         if(WifiControl.wifiIsConnected()){
                             // 继续下载
-                            listdata.get(position).setOnDownloading(true);
-                            downLoadManager.startTask(listdata.get(position).getTaskID());
+                            Log.d(TAG, "restart taskID = " + packageName);
+                            //listdata.get(position).setOnDownloading(true);
+                            downLoadManager.startTask(packageName);
                             holder.btn_item.setState(packageName, DownLoadButton.STATE_DOWNLOADING);
                         }else {
                             Toast.makeText(context, "网络异常,请检查", Toast.LENGTH_SHORT).show();
                         }
                     } else if (downLoadState == DownLoadButton.STATE_DOWNLOADING){
-                        listdata.get(position).setOnDownloading(false);
-                        downLoadManager.stopTask(listdata.get(position).getTaskID());
+                        Log.d(TAG, "stop taskID = " + packageName);
+                        //listdata.get(position).setOnDownloading(false);
+                        downLoadManager.stopTask(packageName);
                         holder.btn_item.setState(packageName, DownLoadButton.STATE_WAITTING);
                     }
-                }
+                //}
             }
         });
 
@@ -326,6 +322,7 @@ public class ListViewAdapter extends BaseAdapter {
     }
 
     private int currentPencent;
+    private int percent;
     private class DowloadManagerListener implements DownLoadListener{
 
         @Override
@@ -337,22 +334,21 @@ public class ListViewAdapter extends BaseAdapter {
         @Override
         public void onProgress(SQLDownLoadInfo sqlDownLoadInfo, boolean isSupportBreakpoint) {
             Log.d(TAG, "==============onProcess " + sqlDownLoadInfo.getTaskID());
-            int position = 0;
             //根据监听到的信息查找列表相对应的任务，更新相应任务的进度
-            for(int i = 0; i < listdata.size(); i++){
-                TaskInfo taskInfo = listdata.get(i);
+            for (TaskInfo taskInfo : listdata) {
                 if(taskInfo.getTaskID().equals(sqlDownLoadInfo.getTaskID())){
                     taskInfo.setDownFileSize(sqlDownLoadInfo.getDownloadSize());
                     taskInfo.setFileSize(sqlDownLoadInfo.getFileSize());
-                    position = i;
-                    ListViewAdapter.this.notifyDataSetChanged();
+                    percent = ((int)(100 * sqlDownLoadInfo.getDownloadSize()/sqlDownLoadInfo.getFileSize()));
+                    // 多了这个会导致其他button无法点击,因为一直在刷新
+                    //ListViewAdapter.this.notifyDataSetChanged();
                     break;
                 }
             }
-            int percent = listdata.get(position).getProgress();
+            int position = getPositionByPackageName(sqlDownLoadInfo.getTaskID());
             ListView listView = ShopListActivity.listView;
             Log.d(TAG, "============== STATE_DOWNLOADING " + percent + " " + currentPencent + "\n" + listView.getFirstVisiblePosition() + "\n" + listView.getLastVisiblePosition());
-            if (percent > currentPencent && position >= listView.getFirstVisiblePosition() && position <= listView.getLastVisiblePosition()) {
+            if (position >= listView.getFirstVisiblePosition() && position <= listView.getLastVisiblePosition()) {
                 currentPencent = percent;
                 int positionInListView = position - listView.getFirstVisiblePosition();
                 DownLoadButton btn = listView.getChildAt(positionInListView).findViewById(R.id.btn_item);
@@ -368,6 +364,7 @@ public class ListViewAdapter extends BaseAdapter {
 
         @Override
         public void onError(SQLDownLoadInfo sqlDownLoadInfo) {
+            Log.d(TAG, "==============  onError " + sqlDownLoadInfo.getTaskID());
             //根据监听到的信息查找列表相对应的任务，停止该任务
             for(TaskInfo taskInfo : listdata){
                 if(taskInfo.getTaskID().equals(sqlDownLoadInfo.getTaskID())){
@@ -385,8 +382,28 @@ public class ListViewAdapter extends BaseAdapter {
             Log.d(TAG, "==============onSuccess " + sqlDownLoadInfo.getTaskID());
             String packageName = sqlDownLoadInfo.getTaskID();
             holder.btn_item.setState(packageName, DownLoadButton.STATE_INSTALLING);
+            downLoadManager.deleteTask(sqlDownLoadInfo.getTaskID());
+            //根据监听到的信息查找列表相对应的任务，删除对应的任务
+            for(TaskInfo taskInfo : listdata){
+                if(taskInfo.getTaskID().equals(sqlDownLoadInfo.getTaskID())){
+                    listdata.remove(taskInfo);
+                    ListViewAdapter.this.notifyDataSetChanged();
+                    break;
+                }
+            }
             com.lenovo.smartShop.utils.DownLoadManager.getInstance(context).installApk(new File(FileHelper.getFileDefaultPath(), "/(" + sqlDownLoadInfo.getFileName() + ")" + sqlDownLoadInfo.getFileName()));
         }
+    }
+
+    private int getPositionByPackageName(String packageName){
+        if(data != null && data.size() > 0){
+            for (int i = 0; i < data.size(); i++){
+                if(data.get(i).getPackageName().equals(packageName)){
+                    return i;
+                }
+            }
+        }
+        return 0;
     }
 
     private void getDownLoadUrl(String url, final String packageName){
@@ -415,13 +432,28 @@ public class ListViewAdapter extends BaseAdapter {
             public void onResponse(AppDownLoadBean response) {
                 String downLoadUrl = response.getData().getDownurl();
                 Log.d(TAG, "pkg = " + packageName + " / downLoadUrl = " + downLoadUrl);
-                //listdata.get(position).setOnDownloading(true);
+                /*TaskInfo taskInfo = new TaskInfo();
+                taskInfo.setFileName(packageName);
+                taskInfo.setTaskID(packageName);
+                listdata.add(taskInfo);*/
                 downLoadManager.addTask(packageName, downLoadUrl, packageName);
                 holder.btn_item.setState(packageName, DownLoadButton.STATE_DOWNLOADING);
+                listdata = downLoadManager.getAllTask();
             }
         });
     }
 
+    public void stopAllTask(){
+        if(downLoadManager != null){
+            downLoadManager.stopAllTask();
+        }
+    }
+
+    public void saveAllTaskInfo(){
+        if(downLoadManager != null){
+            downLoadManager.saveAllTaskInfo();
+        }
+    }
 
     private String fileCacheNem = ".cache";
     private void renameFile(String packageName){

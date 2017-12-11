@@ -28,7 +28,7 @@ public class SCPackageManager {
     private static Context mContext;
     private static String appPackageName;
     private final static String TAG = "SC-PackageManager";
-    public static String PATH = Environment.getExternalStorageDirectory() + "/SmartShop/";
+    public static String PATH = Environment.getExternalStorageDirectory() + "/SmartShop/smartcast/FILETEMP/";
     private final static int PACKAGE_INDEX = 1;
     public final static int FILE_EXIST = 2;
     public final static int FILE_NOT_EXIST = 3;
@@ -114,7 +114,7 @@ public class SCPackageManager {
                     for (File file : files){
                         Log.d(TAG, "name = " + file.getName());
                         //getPackageSize(file);
-                        if(file.getName().equals(packageName)){
+                        if(file.getName().equals("(" + packageName + ")" + packageName)){
                             Log.d(TAG, "original size = " + size);
                             String md5File = getFileMD5(file);
                             if(getPackageSize(file) >= size
@@ -168,7 +168,7 @@ public class SCPackageManager {
 
     public static void deleteInstallPackage(String packageName){
         //String[] sourceStrArray = packageName.split(":");
-        File file = new File(PATH, packageName);
+        File file = new File(PATH, "(" + packageName + ")" + packageName);
         try {
             if(file.exists()){
                 file.delete();

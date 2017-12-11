@@ -40,6 +40,7 @@ import com.yuan.leopardkit.LeopardHttp;
 import com.yuan.leopardkit.download.DownLoadManager;
 import com.yuan.leopardkit.download.model.DownloadInfo;
 import com.zhuiji7.filedownloader.download.DownLoadService;
+import com.zhuiji7.filedownloader.download.TaskInfo;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -118,11 +119,29 @@ public class ShopListActivity extends Activity {
         }
     };
 
+    private ArrayList<TaskInfo> listdata;
     private void initDownLoadTask(ArrayList<AppListBean.DataBean.DatalistBean> mListAll){
-        for(AppListBean.DataBean.DatalistBean datalistBean : mListAll){
-            final String murl = HttpUtils.commDetailUrl + "pn=" + datalistBean.getPackageName() + "&vc=" + datalistBean.getVersioncode();
-            getDownLoadUrl(murl, datalistBean.getPackageName(), false);
+        listdata = new ArrayList<>();
+        int taskSize = manager.getAllTask().size();
+        if(taskSize == 0){
+            for(AppListBean.DataBean.DatalistBean datalistBean : mListAll){
+                TaskInfo taskInfo = new TaskInfo();
+                taskInfo.setFileName(datalistBean.getPackageName());
+                taskInfo.setTaskID(datalistBean.getPackageName());
+                listdata.add(taskInfo);
+            }
+        }else if (taskSize < mListAll.size()){
+            for(int index = taskSize; index < mListAll.size(); index++){
+                TaskInfo taskInfo = new TaskInfo();
+                taskInfo.setFileName(mListAll.get(index).getPackageName());
+                taskInfo.setTaskID(mListAll.get(index).getPackageName());
+                listdata.add(taskInfo);
+            }
+        }else {
+            Log.d(TAG, "TaskInfo size = " + taskSize + "\n" + "mListAll size = " + mListAll.size());
         }
+
+        listViewAdapter.setTaskInfoList(listdata);
     }
 
     private void initViews() {
@@ -206,7 +225,7 @@ public class ShopListActivity extends Activity {
                     myApplication.setDataList(mListAll);
                     //searchAdapter.notifyDataSetChanged();
                     //initData();
-                    initDownLoadTask(mListAll);
+                    //initDownLoadTask(mListAll);
                     //List<DownloadInfo> downloadInfoList = DownLoadManager.getManager().getDownloadList(ShopListActivity.this);
                     refreshAdapter();
                     //listViewAdapter.notifyDataSetChanged();
@@ -327,18 +346,30 @@ public class ShopListActivity extends Activity {
     }
 
     @Override
+    protected void onStop() {
+        super.onStop();
+        Log.d(TAG, "onStop");
+        if(listViewAdapter != null){
+            listViewAdapter.saveAllTaskInfo();
+        }
+    }
+
+    @Override
     protected void onDestroy() {
         // 引用对象销毁时，释放下载资源（当然建议在后台服务跑下载进程）
         DownLoadManager.getManager().release();
         super.onDestroy();
         Log.d(TAG, "onDestory");
         StateMachine.getInstance().releaseState();
+        if(listViewAdapter != null){
+            listViewAdapter.stopAllTask();
+        }
     }
 
 
-    @Override
+    /*@Override
     public void onBackPressed() {
-        /*if(StateMachine.getInstance().isCurrentState(DownLoadButton.STATE_DOWNLOADING)){
+        *//*if(StateMachine.getInstance().isCurrentState(DownLoadButton.STATE_DOWNLOADING)){
             Intent intent = new Intent(Intent.ACTION_MAIN);
             intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);// 注意
             intent.addCategory(Intent.CATEGORY_HOME);
@@ -346,13 +377,13 @@ public class ShopListActivity extends Activity {
         }else {
             Log.d(TAG, "onBackPressed");
             super.onBackPressed();
-        }*/
-        /*Intent intent = new Intent(Intent.ACTION_MAIN);
+        }*//*
+        *//*Intent intent = new Intent(Intent.ACTION_MAIN);
         intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);// 注意
         intent.addCategory(Intent.CATEGORY_HOME);
-        this.startActivity(intent);*/
+        this.startActivity(intent);*//*
         super.onBackPressed();
-    }
+    }*/
 
     private void getDownLoadUrl(String url, final String packageName, final boolean sort){
         OkHttpClientUtil.getInstance()._getAsyn(url, new OkHttpClientUtil.ResultCallback<AppDetailInfoBean>() {

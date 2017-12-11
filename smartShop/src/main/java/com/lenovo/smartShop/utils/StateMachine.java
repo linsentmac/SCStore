@@ -58,16 +58,6 @@ public class StateMachine {
                     String detailInfoUrl = HttpUtils.commDetailUrl + "pn=" + datalistBean.getPackageName() + "&vc=" + datalistBean.getVersioncode();
                     //getApkServerMd5Str(detailInfoUrl);
                     Log.d(TAG, "appPackageName = " + appPackageName);
-                    /*if(SCPackageManager.isAppInstalled(context, appPackageName)){
-                        Log.d(TAG, "Complete");
-                        setDownLoadState(appPackageName, DownLoadButton.STATE_COMPLETE);
-                    }else if(SCPackageManager.queryAppInstallPackage(appPackageName, sizeL, detailInfoUrl)){
-                        Log.d(TAG, "Install");
-                        setDownLoadState(appPackageName, DownLoadButton.STATE_INSTALL);
-                    }else {
-                        Log.d(TAG, "Normal");
-                        setDownLoadState(appPackageName, DownLoadButton.STATE_NORMAL);
-                    }*/
                     if(SCPackageManager.isAppInstalled(context, appPackageName)){
                         Log.d(TAG, "Complete");
                         setDownLoadState(appPackageName, DownLoadButton.STATE_COMPLETE);
@@ -142,7 +132,7 @@ public class StateMachine {
         });
     }
 
-    private void refreshAdapter(){
+    public void refreshAdapter(){
         if(mContext != null){
             ((Activity)mContext).runOnUiThread(new Runnable() {
                 @Override

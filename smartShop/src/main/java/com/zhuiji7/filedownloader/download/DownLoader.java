@@ -3,7 +3,9 @@ package com.zhuiji7.filedownloader.download;
 import android.content.Context;
 import android.os.Handler;
 import android.os.Message;
+import android.util.Log;
 
+import com.lenovo.smartShop.utils.BufferedRandomAccessFile;
 import com.zhuiji7.filedownloader.download.dbcontrol.DataKeeper;
 import com.zhuiji7.filedownloader.download.dbcontrol.FileHelper;
 import com.zhuiji7.filedownloader.download.dbcontrol.bean.SQLDownLoadInfo;
@@ -102,6 +104,12 @@ public class DownLoader {
             downLoadThread = null;
         }
     }
+
+    public void saveTask(){
+        if(downLoadThread != null){
+            downLoadThread.saveTaskInfo();
+        }
+    }
     
     public void setDownLoadListener(String key, DownLoadListener listener){
         if (listener==null) {
@@ -119,6 +127,14 @@ public class DownLoader {
     
     public void setDownLodSuccesslistener(DownLoadSuccess downloadsuccess){
         this.downloadsuccess = downloadsuccess;
+    }
+
+    public void destroyDownLoadTask(){
+        if(downLoadThread != null){
+            downLoadThread.stopDownLoad();
+            downLoadThread = null;
+        }
+        datakeeper.deleteDownLoadInfo(userID,sqlDownLoadInfo.getTaskID());
     }
     
     public void destroy(){
@@ -163,7 +179,7 @@ public class DownLoader {
     class DownLoadThread extends Thread{
         private boolean isdownloading;
         private URL url;
-        private RandomAccessFile  localFile;
+        private BufferedRandomAccessFile localFile;
         private HttpURLConnection urlConn;
         private InputStream inputStream;
         private int progress = -1;
@@ -196,7 +212,7 @@ public class DownLoader {
                         openConnention();
                     }else{
                         if(new File(TEMP_FILEPATH + "/(" + FileHelper.filterIDChars(sqlDownLoadInfo.getTaskID()) + ")" + sqlDownLoadInfo.getFileName()).exists()){
-                            localFile = new RandomAccessFile (TEMP_FILEPATH + "/(" + FileHelper.filterIDChars(sqlDownLoadInfo.getTaskID()) + ")" + sqlDownLoadInfo.getFileName(),"rwd");
+                            localFile = new BufferedRandomAccessFile (TEMP_FILEPATH + "/(" + FileHelper.filterIDChars(sqlDownLoadInfo.getTaskID()) + ")" + sqlDownLoadInfo.getFileName(),"rwd");
                             localFile.seek(downFileSize);
                             urlConn.setRequestProperty("Range", "bytes=" + downFileSize + "-"); 
                         }else{
@@ -293,12 +309,18 @@ public class DownLoader {
             }
             handler.sendEmptyMessage(TASK_STOP);
         }
+
+        public void saveTaskInfo(){
+            if(fileSize > 0){
+                saveDownloadInfo();
+            }
+        }
         
         private void openConnention() throws Exception{
             long urlfilesize = urlConn.getContentLength();
             if(urlfilesize > 0){
                 isFolderExist();
-                localFile = new RandomAccessFile (TEMP_FILEPATH + "/(" + FileHelper.filterIDChars(sqlDownLoadInfo.getTaskID()) + ")" + sqlDownLoadInfo.getFileName(),"rwd");
+                localFile = new BufferedRandomAccessFile (TEMP_FILEPATH + "/(" + FileHelper.filterIDChars(sqlDownLoadInfo.getTaskID()) + ")" + sqlDownLoadInfo.getFileName(),"rwd");
                 localFile.setLength(urlfilesize);
                 sqlDownLoadInfo.setFileSize(urlfilesize);
                 fileSize = urlfilesize;
