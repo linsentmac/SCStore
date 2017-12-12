@@ -1,13 +1,13 @@
 
-package com.zhuiji7.filedownloader.download;
+package com.tmac.filedownloader.download;
 
 import android.content.Context;
 import android.content.SharedPreferences;
 
-import com.zhuiji7.filedownloader.download.DownLoader.DownLoadSuccess;
-import com.zhuiji7.filedownloader.download.dbcontrol.DataKeeper;
-import com.zhuiji7.filedownloader.download.dbcontrol.FileHelper;
-import com.zhuiji7.filedownloader.download.dbcontrol.bean.SQLDownLoadInfo;
+import com.tmac.filedownloader.download.DownLoader.DownLoadSuccess;
+import com.tmac.filedownloader.download.dbcontrol.DataKeeper;
+import com.tmac.filedownloader.download.dbcontrol.FileHelper;
+import com.tmac.filedownloader.download.dbcontrol.bean.SQLDownLoadInfo;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -18,8 +18,7 @@ import java.util.concurrent.TimeUnit;
 /**
  * 类功能描述：下载管理类</br>
  *
- * @author zhuiji7
- * @email 470508081@qq.com
+ * @author linsen
  * @version 1.0
  * </p>
  */

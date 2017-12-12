@@ -1,10 +1,9 @@
-package com.zhuiji7.filedownloader.download;
+package com.tmac.filedownloader.download;
 
 /**
  * 类功能描述：</br>
  *
- * @author zhuiji7
- * @email 470508081@qq.com
+ * @author linsen
  * @version 1.0
  * </p>
  */

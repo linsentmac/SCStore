@@ -8,7 +8,6 @@ import android.content.pm.PackageManager;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.Bundle;
-import android.os.Environment;
 import android.os.Handler;
 import android.os.Message;
 import android.support.v4.content.PermissionChecker;
@@ -31,7 +30,6 @@ import com.lenovo.smartShop.model.DownLoadModel;
 import com.lenovo.smartShop.utils.HttpUtils;
 import com.lenovo.smartShop.utils.MyApplication;
 import com.lenovo.smartShop.utils.OkHttpClientUtil;
-import com.lenovo.smartShop.utils.SCPackageManager;
 import com.lenovo.smartShop.utils.StateMachine;
 import com.lenovo.smartShop.utils.StatusBarUtil;
 import com.lenovo.smartShop.utils.WifiControl;
@@ -39,12 +37,11 @@ import com.lenovo.smartShop.view.DownLoadButton;
 import com.yuan.leopardkit.LeopardHttp;
 import com.yuan.leopardkit.download.DownLoadManager;
 import com.yuan.leopardkit.download.model.DownloadInfo;
-import com.zhuiji7.filedownloader.download.DownLoadService;
-import com.zhuiji7.filedownloader.download.TaskInfo;
+import com.tmac.filedownloader.download.DownLoadService;
+import com.tmac.filedownloader.download.TaskInfo;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 
 import okhttp3.Request;
 
@@ -100,7 +97,7 @@ public class ShopListActivity extends Activity {
         getWifiState();
     }
 
-    private com.zhuiji7.filedownloader.download.DownLoadManager manager;
+    private com.tmac.filedownloader.download.DownLoadManager manager;
     private Handler handler = new Handler(){
         @Override
         public void handleMessage(Message msg) {

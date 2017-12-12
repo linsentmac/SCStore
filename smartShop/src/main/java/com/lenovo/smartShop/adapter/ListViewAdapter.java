@@ -28,14 +28,12 @@ import com.lenovo.smartShop.utils.SCPackageManager;
 import com.lenovo.smartShop.utils.StateMachine;
 import com.lenovo.smartShop.utils.WifiControl;
 import com.lenovo.smartShop.view.DownLoadButton;
-import com.yuan.leopardkit.LeopardHttp;
 import com.yuan.leopardkit.download.model.DownloadInfo;
-import com.yuan.leopardkit.interfaces.IDownloadProgress;
 import com.yuan.leopardkit.download.DownLoadManager;
-import com.zhuiji7.filedownloader.download.DownLoadListener;
-import com.zhuiji7.filedownloader.download.TaskInfo;
-import com.zhuiji7.filedownloader.download.dbcontrol.FileHelper;
-import com.zhuiji7.filedownloader.download.dbcontrol.bean.SQLDownLoadInfo;
+import com.tmac.filedownloader.download.DownLoadListener;
+import com.tmac.filedownloader.download.TaskInfo;
+import com.tmac.filedownloader.download.dbcontrol.FileHelper;
+import com.tmac.filedownloader.download.dbcontrol.bean.SQLDownLoadInfo;
 
 
 import java.io.File;
@@ -43,7 +41,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import okhttp3.Request;
-import retrofit2.http.PATCH;
 
 /**
  * Created by linsen3 on 17-10-13.
@@ -58,11 +55,11 @@ public class ListViewAdapter extends BaseAdapter {
     private DownloadInfo info;
     private ArrayList<TaskInfo> listdata = new  ArrayList<TaskInfo>();
     private List<String> mDownLoadUrlList = new ArrayList<>();
-    private com.zhuiji7.filedownloader.download.DownLoadManager downLoadManager;
+    private com.tmac.filedownloader.download.DownLoadManager downLoadManager;
     public static final String FILEPATH = Environment.getExternalStorageDirectory() + "/SmartShop/";
 
     public ListViewAdapter(Context context, List<AppListBean.DataBean.DatalistBean> data, List<DownLoadModel> modelList,
-                           com.zhuiji7.filedownloader.download.DownLoadManager downLoadManager,
+                           com.tmac.filedownloader.download.DownLoadManager downLoadManager,
                            List<String> downLoadUrlList) {
         this.context = context;
         this.data = data;

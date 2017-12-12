@@ -1,18 +1,16 @@
-package com.zhuiji7.filedownloader.download;
+package com.tmac.filedownloader.download;
 
 import android.content.Context;
 import android.os.Handler;
 import android.os.Message;
-import android.util.Log;
 
 import com.lenovo.smartShop.utils.BufferedRandomAccessFile;
-import com.zhuiji7.filedownloader.download.dbcontrol.DataKeeper;
-import com.zhuiji7.filedownloader.download.dbcontrol.FileHelper;
-import com.zhuiji7.filedownloader.download.dbcontrol.bean.SQLDownLoadInfo;
+import com.tmac.filedownloader.download.dbcontrol.DataKeeper;
+import com.tmac.filedownloader.download.dbcontrol.FileHelper;
+import com.tmac.filedownloader.download.dbcontrol.bean.SQLDownLoadInfo;
 
 import java.io.File;
 import java.io.InputStream;
-import java.io.RandomAccessFile;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.Collection;
@@ -23,8 +21,7 @@ import java.util.concurrent.ThreadPoolExecutor;
 /**
  * 类功能描述：下载执行类，每一个 DataKeeper对象 代表一个下载任务</br>
  *
- * @author zhuiji7
- * @email 470508081@qq.com
+ * @author linsen
  * @version 1.0
  * </p>
  */

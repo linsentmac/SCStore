@@ -1,13 +1,12 @@
-package com.zhuiji7.filedownloader.download;
+package com.tmac.filedownloader.download;
 
 
-import com.zhuiji7.filedownloader.download.dbcontrol.bean.SQLDownLoadInfo;
+import com.tmac.filedownloader.download.dbcontrol.bean.SQLDownLoadInfo;
 
 /**
  * 类功能描述：</br>
  *
- * @author zhuiji7
- * @email 470508081@qq.com
+ * @author linsen
  * @version 1.0
  * </p>
  */

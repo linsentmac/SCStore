@@ -1,9 +1,8 @@
-package com.zhuiji7.filedownloader.download.dbcontrol.bean;
+package com.tmac.filedownloader.download.dbcontrol.bean;
 /**
  * 类功能描述：下载任务对象</br>
  *
- * @author zhuiji7
- * @email 470508081@qq.com
+ * @author linsen
  * @version 1.0
  * </p>
  */

@@ -1,19 +1,18 @@
-package com.zhuiji7.filedownloader.download.dbcontrol;
+package com.tmac.filedownloader.download.dbcontrol;
 
 import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 
-import com.zhuiji7.filedownloader.download.dbcontrol.bean.SQLDownLoadInfo;
+import com.tmac.filedownloader.download.dbcontrol.bean.SQLDownLoadInfo;
 
 import java.util.ArrayList;
 
 /**
  * 类功能描述：信息存储类，主要在任务下载各个环节执行数据的存储</br>
  *
- * @author zhuiji7
- * @email 470508081@qq.com
+ * @author linsen
  * @version 1.0
  * </p>
  */

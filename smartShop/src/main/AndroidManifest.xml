@@ -63,7 +63,7 @@
         <activity android:name="com.lenovo.smartShop.activity.SearchActivity" />
         <activity android:name="com.lenovo.smartShop.activity.AppDetailInfoActivity"></activity>
 
-        <service android:name="com.zhuiji7.filedownloader.download.DownLoadService" />
+        <service android:name="com.tmac.filedownloader.download.DownLoadService" />
 
     </application>
 

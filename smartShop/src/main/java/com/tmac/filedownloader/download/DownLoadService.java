@@ -1,4 +1,4 @@
-package com.zhuiji7.filedownloader.download;
+package com.tmac.filedownloader.download;
 
 import android.app.Service;
 import android.content.Intent;
@@ -7,7 +7,7 @@ import android.os.IBinder;
 /**
  * 类功能描述：下载器后台服务</br>
  *
- * @author zhuiji7  (470508081@qq.com)
+ * @author linsen
  * @version 1.0
  * </p>
  */

@@ -5,7 +5,7 @@
 //  Created by LuTH on 2011-12-17.
 //  Copyright 2011 flyrise. All rights reserved.
 //
-package com.zhuiji7.filedownloader.download.dbcontrol;
+package com.tmac.filedownloader.download.dbcontrol;
 
 import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
@@ -15,8 +15,7 @@ import android.database.sqlite.SQLiteOpenHelper;
 /**
  * 类功能描述：</br>
  *
- * @author zhuiji7
- * @email 470508081@qq.com
+ * @author linsen
  * @version 1.0
  * </p>
  */

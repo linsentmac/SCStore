@@ -1,4 +1,4 @@
-package com.zhuiji7.filedownloader.download.dbcontrol;
+package com.tmac.filedownloader.download.dbcontrol;
 
 import android.os.Environment;
 
@@ -12,8 +12,7 @@ import java.util.List;
 /**
  * 类功能描述：文件操作辅助类</br>
  *
- * @author zhuiji7
- * @email 470508081@qq.com
+ * @author linsen
  * @version 1.0
  * </p>
  */

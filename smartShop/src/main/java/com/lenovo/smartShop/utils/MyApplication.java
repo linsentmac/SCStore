@@ -2,11 +2,9 @@ package com.lenovo.smartShop.utils;
 
 import android.app.Application;
 import android.content.Intent;
-import android.util.Log;
 
 import com.lenovo.smartShop.bean.AppListBean;
-import com.yuan.leopardkit.download.*;
-import com.zhuiji7.filedownloader.download.DownLoadService;
+import com.tmac.filedownloader.download.DownLoadService;
 
 import java.util.ArrayList;
 import java.util.List;
