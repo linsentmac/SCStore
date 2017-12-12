@@ -46,7 +46,7 @@ import okhttp3.Request;
 import retrofit2.http.PATCH;
 
 /**
- * Created by tmac on 17-10-13.
+ * Created by linsen3 on 17-10-13.
  */
 
 public class ListViewAdapter extends BaseAdapter {
@@ -192,7 +192,8 @@ public class ListViewAdapter extends BaseAdapter {
                     } else if (downLoadState == DownLoadButton.STATE_INSTALL) {
                         holder.btn_item.setState(packageName, DownLoadButton.STATE_INSTALLING);
                         //com.lenovo.smartShop.utils.DownLoadManager.getInstance(context).installPacakageByPm(new File(ListViewAdapter.FILEPATH, packageName));
-                        com.lenovo.smartShop.utils.DownLoadManager.getInstance(context).installApk(new File(FileHelper.getFileDefaultPath(), "/(" + packageName + ")" + packageName));
+                        //com.lenovo.smartShop.utils.DownLoadManager.getInstance(context).installApk(new File(FileHelper.getFileDefaultPath(), "/(" + packageName + ")" + packageName));
+                        com.lenovo.smartShop.utils.DownLoadManager.getInstance(context).sendInstallMessage(new File(FileHelper.getFileDefaultPath(), "/(" + packageName + ")" + packageName));
                     } else if (downLoadState == DownLoadButton.STATE_WAITTING){
                         if(WifiControl.wifiIsConnected()){
                             // 继续下载
@@ -391,7 +392,8 @@ public class ListViewAdapter extends BaseAdapter {
                     break;
                 }
             }
-            com.lenovo.smartShop.utils.DownLoadManager.getInstance(context).installApk(new File(FileHelper.getFileDefaultPath(), "/(" + sqlDownLoadInfo.getFileName() + ")" + sqlDownLoadInfo.getFileName()));
+            //com.lenovo.smartShop.utils.DownLoadManager.getInstance(context).installApk(new File(FileHelper.getFileDefaultPath(), "/(" + sqlDownLoadInfo.getFileName() + ")" + sqlDownLoadInfo.getFileName()));
+            com.lenovo.smartShop.utils.DownLoadManager.getInstance(context).sendInstallMessage(new File(FileHelper.getFileDefaultPath(), "/(" + sqlDownLoadInfo.getFileName() + ")" + sqlDownLoadInfo.getFileName()));
         }
     }
 
