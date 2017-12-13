@@ -105,10 +105,12 @@ public class SCPackageManager {
     }
 
     public static boolean queryAppIsNotInstall(File[] files, String packageName){
-        for (File file : files){
-            Log.d(TAG, "name = " + file.getName());
-            if(file.getName().equals("(" + packageName + ")" + packageName)){
-                return true;
+        if(files != null){
+            for (File file : files){
+                Log.d(TAG, "name = " + file.getName());
+                if(file.getName().equals("(" + packageName + ")" + packageName)){
+                    return true;
+                }
             }
         }
         return false;

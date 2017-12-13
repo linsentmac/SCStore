@@ -70,6 +70,7 @@ public class ShopListActivity extends Activity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        Log.d(TAG, "onCreate");
         StatusBarUtil.adjustTranslentWindow(this);
         setContentView(R.layout.activity_shop_list);
         myApplication = (MyApplication) getApplication();
@@ -77,7 +78,6 @@ public class ShopListActivity extends Activity {
         initViews();
         initEvents();
         StatusBarUtil.setWhiteTranslucent(this);
-
 
 
         /**  因为是单例模式进行构建leopard请求，所以请求前需要先进行域名绑定 **/
@@ -187,55 +187,56 @@ public class ShopListActivity extends Activity {
 
     private void dataRequest(){
         //progressBar.setVisibility(View.VISIBLE);
-        if(!StateMachine.getInstance().isCurrentState(DownLoadButton.STATE_DOWNLOADING)){
-            Log.d(TAG, "dataRequest");
-            OkHttpClientUtil.getInstance()._getAsyn(HttpUtils.listUrl, new OkHttpClientUtil.ResultCallback<AppListBean>(){
-
-                @Override
-                public void onError(Request request, Exception e) {
-                    Log.d(TAG, "error = " + e.toString());
-                    if(mListAll != null && mListAll.size() == 0){
-                        progressBar.setVisibility(View.GONE);
-                        disConn_Img.setVisibility(View.VISIBLE);
-                    }else {
-                        removeMessage();
-                    }
-                }
-
-                @Override
-                public void onResponse(AppListBean response) {
-                    Log.d(TAG, "response = " + response.toString());
-                    progressBar.setVisibility(View.GONE);
-                    disConn_Img.setVisibility(View.GONE);
-                    removeMessage();
-                    if(mListAll.size() != 0){
-                        mListAll.clear();
-                        packageList.clear();
-                        pkgSizeList.clear();
-                    }
-                    for(int i = 0; i < response.getData().getAllcount(); i++){
-                        mListAll.add(response.getData().getDatalist().get(i));
-                        packageList.add(response.getData().getDatalist().get(i).getPackageName());
-                        pkgSizeList.add(response.getData().getDatalist().get(i).getSize());
-                    }
-                    myApplication.setDataList(mListAll);
-                    //searchAdapter.notifyDataSetChanged();
-                    //initData();
-                    //initDownLoadTask(mListAll);
-                    //List<DownloadInfo> downloadInfoList = DownLoadManager.getManager().getDownloadList(ShopListActivity.this);
-                    refreshAdapter();
-                    //listViewAdapter.notifyDataSetChanged();
-                    Log.d(TAG, "firstLoad = " + firstLoad);
-                    if(firstLoad){
-                        StateMachine.getInstance().initState(mListAll, ShopListActivity.this);
-                        firstLoad = false;
-                    }
-                }
-            });
+        /*if(!StateMachine.getInstance().isCurrentState(DownLoadButton.STATE_DOWNLOADING)){
         }else {
             progressBar.setVisibility(View.GONE);
             removeMessage();
-        }
+        }*/
+        Log.d(TAG, "dataRequest");
+        OkHttpClientUtil.getInstance()._getAsyn(HttpUtils.listUrl, new OkHttpClientUtil.ResultCallback<AppListBean>(){
+
+            @Override
+            public void onError(Request request, Exception e) {
+                Log.d(TAG, "error = " + e.toString());
+                if(mListAll != null && mListAll.size() == 0){
+                    progressBar.setVisibility(View.GONE);
+                    disConn_Img.setVisibility(View.VISIBLE);
+                }else {
+                    removeMessage();
+                }
+            }
+
+            @Override
+            public void onResponse(AppListBean response) {
+                Log.d(TAG, "response = " + response.toString());
+                progressBar.setVisibility(View.GONE);
+                disConn_Img.setVisibility(View.GONE);
+                removeMessage();
+                if(mListAll.size() != 0){
+                    mListAll.clear();
+                    packageList.clear();
+                    pkgSizeList.clear();
+                }
+                for(int i = 0; i < response.getData().getAllcount(); i++){
+                    mListAll.add(response.getData().getDatalist().get(i));
+                    packageList.add(response.getData().getDatalist().get(i).getPackageName());
+                    pkgSizeList.add(response.getData().getDatalist().get(i).getSize());
+                }
+                myApplication.setDataList(mListAll);
+                //searchAdapter.notifyDataSetChanged();
+                //initData();
+                //initDownLoadTask(mListAll);
+                //List<DownloadInfo> downloadInfoList = DownLoadManager.getManager().getDownloadList(ShopListActivity.this);
+                refreshAdapter();
+                //listViewAdapter.notifyDataSetChanged();
+                Log.d(TAG, "firstLoad = " + firstLoad);
+                if(firstLoad){
+                    StateMachine.getInstance().initState(mListAll, ShopListActivity.this);
+                    firstLoad = false;
+                }
+            }
+        });
+
     }
 
     private Handler mHandler = new Handler(){

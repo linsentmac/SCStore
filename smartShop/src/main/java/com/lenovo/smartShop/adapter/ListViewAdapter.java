@@ -39,7 +39,10 @@ import com.tmac.filedownloader.download.dbcontrol.bean.SQLDownLoadInfo;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 
 import okhttp3.Request;
 
@@ -78,7 +81,7 @@ public class ListViewAdapter extends BaseAdapter {
             }
         }
     }
-    
+
     public void setTaskInfoList(ArrayList<TaskInfo> listdata){
         this.listdata = listdata;
         this.notifyDataSetInvalidated();
@@ -346,9 +349,10 @@ public class ListViewAdapter extends BaseAdapter {
                 }
             }
             int position = getPositionByPackageName(sqlDownLoadInfo.getTaskID());
+            Log.d(TAG, "==============  position = " + position);
             ListView listView = ShopListActivity.listView;
             Log.d(TAG, "============== STATE_DOWNLOADING " + percent + " " + currentPencent + "\n" + listView.getFirstVisiblePosition() + "\n" + listView.getLastVisiblePosition());
-            if (percent > (StateMachine.getInstance().getDownloadPercent(sqlDownLoadInfo.getTaskID()) + 4)
+            if (percent > (StateMachine.getInstance().getDownloadPercent(sqlDownLoadInfo.getTaskID()))
                     && position >= listView.getFirstVisiblePosition()
                     && position <= listView.getLastVisiblePosition()) {
                 currentPencent = percent;
@@ -392,6 +396,7 @@ public class ListViewAdapter extends BaseAdapter {
                     break;
                 }
             }
+            notifyDownLoadTask();
             //com.lenovo.smartShop.utils.DownLoadManager.getInstance(context).installApk(new File(FileHelper.getFileDefaultPath(), "/(" + sqlDownLoadInfo.getFileName() + ")" + sqlDownLoadInfo.getFileName()));
             com.lenovo.smartShop.utils.DownLoadManager.getInstance(context).sendInstallMessage(new File(FileHelper.getFileDefaultPath(), "/(" + sqlDownLoadInfo.getFileName() + ")" + sqlDownLoadInfo.getFileName()));
         }
@@ -434,11 +439,41 @@ public class ListViewAdapter extends BaseAdapter {
             public void onResponse(AppDownLoadBean response) {
                 String downLoadUrl = response.getData().getDownurl();
                 Log.d(TAG, "pkg = " + packageName + " / downLoadUrl = " + downLoadUrl);
-                downLoadManager.addTask(packageName, downLoadUrl, packageName);
+                //downLoadManager.addTask(packageName, downLoadUrl, packageName);
                 holder.btn_item.setState(packageName, DownLoadButton.STATE_DOWNLOADING);
-                listdata = downLoadManager.getAllTask();
+                ListViewAdapter.this.notifyDataSetChanged();
+                //listdata = downLoadManager.getAllTask();
+                addDownloadTask(packageName, downLoadUrl);
             }
         });
+    }
+
+    private ArrayList<HashMap<String, String>> waitTaskList = new ArrayList<>();
+    private final int MAX_TASK_COUNT = 3;
+    private final String NAME = "packageName";
+    private final String URL = "downLoadUrl";
+    private void addDownloadTask(String packageName, String downLoadUrl){
+        if(listdata.size() >= MAX_TASK_COUNT){
+            Log.d("SC-SL", "download task into waiting " + listdata.size());
+            HashMap<String, String> waitMap = new HashMap<>();
+            waitMap.put(NAME, packageName);
+            waitMap.put(URL, downLoadUrl);
+            waitTaskList.add(waitMap);
+        }else {
+            Log.d("SC-SL", "add download task count = " + listdata.size());
+            downLoadManager.addTask(packageName, downLoadUrl, packageName);
+            listdata = downLoadManager.getAllTask();
+        }
+    }
+
+    private void notifyDownLoadTask(){
+        if(waitTaskList.size() != 0){
+            Log.d("SC-SL", "remove waiting state, add download task " + listdata.size());
+            HashMap<String, String> waitMap = waitTaskList.get(0);
+            downLoadManager.addTask(waitMap.get(NAME), waitMap.get(URL), waitMap.get(NAME));
+            listdata = downLoadManager.getAllTask();
+            waitTaskList.remove(0);
+        }
     }
 
     public void stopAllTask(){
@@ -450,17 +485,6 @@ public class ListViewAdapter extends BaseAdapter {
     public void saveAllTaskInfo(){
         if(downLoadManager != null){
             downLoadManager.saveAllTaskInfo();
-        }
-    }
-
-    private String fileCacheNem = ".cache";
-    private void renameFile(String packageName){
-        //更新文件
-        File file = new File(FILEPATH + packageName +fileCacheNem);
-        Log.d("LS-" + TAG, "file = " + file.getName() + " " + file.exists());
-        if(file.exists()){
-            Log.d(TAG, "rename file : " + packageName);
-            file.renameTo(new File(FILEPATH + packageName));
         }
     }
 }

@@ -55,7 +55,9 @@ public class StateMachine {
             @Override
             public void run() {
                 File specItemDir = new File(SCPackageManager.PATH);
-                files = specItemDir.listFiles();
+                if(specItemDir.exists()){
+                    files = specItemDir.listFiles();
+                }
                 for (AppListBean.DataBean.DatalistBean datalistBean : mListAll){
                     String appPackageName = datalistBean.getPackageName();
                     int sizeL = datalistBean.getSize();
@@ -172,6 +174,7 @@ public class StateMachine {
         while (iter.hasNext()){
             Map.Entry entry = (Map.Entry) iter.next();
             if(entry.getValue().equals(state)){
+                Log.d(TAG, "entry value = " + entry.getValue());
                 return true;
             }
         }
@@ -186,7 +189,6 @@ public class StateMachine {
     }
 
     public int getDownloadPercent(String packageName){
-        Log.d(TAG, "percentMap = " + percentMap);
         if(percentMap.containsKey(packageName)){
             return percentMap.get(packageName);
         }
