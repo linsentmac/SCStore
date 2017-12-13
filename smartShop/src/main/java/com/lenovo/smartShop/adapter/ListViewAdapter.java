@@ -2,6 +2,7 @@ package com.lenovo.smartShop.adapter;
 
 import android.content.Context;
 import android.os.Environment;
+import android.os.Handler;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -73,10 +74,11 @@ public class ListViewAdapter extends BaseAdapter {
             Log.d(TAG, "task progress = " + taskInfo.getProgress());
             if(taskInfo.getProgress() > 0){
                 StateMachine.getInstance().setDownLoadState(taskInfo.getTaskID(), DownLoadButton.STATE_WAITTING);
+                StateMachine.getInstance().setDownloadPercent(taskInfo.getTaskID(), taskInfo.getProgress());
             }
         }
     }
-
+    
     public void setTaskInfoList(ArrayList<TaskInfo> listdata){
         this.listdata = listdata;
         this.notifyDataSetInvalidated();
@@ -346,7 +348,9 @@ public class ListViewAdapter extends BaseAdapter {
             int position = getPositionByPackageName(sqlDownLoadInfo.getTaskID());
             ListView listView = ShopListActivity.listView;
             Log.d(TAG, "============== STATE_DOWNLOADING " + percent + " " + currentPencent + "\n" + listView.getFirstVisiblePosition() + "\n" + listView.getLastVisiblePosition());
-            if (position >= listView.getFirstVisiblePosition() && position <= listView.getLastVisiblePosition()) {
+            if (percent > (StateMachine.getInstance().getDownloadPercent(sqlDownLoadInfo.getTaskID()) + 4)
+                    && position >= listView.getFirstVisiblePosition()
+                    && position <= listView.getLastVisiblePosition()) {
                 currentPencent = percent;
                 int positionInListView = position - listView.getFirstVisiblePosition();
                 DownLoadButton btn = listView.getChildAt(positionInListView).findViewById(R.id.btn_item);
@@ -380,7 +384,6 @@ public class ListViewAdapter extends BaseAdapter {
             Log.d(TAG, "==============onSuccess " + sqlDownLoadInfo.getTaskID());
             String packageName = sqlDownLoadInfo.getTaskID();
             holder.btn_item.setState(packageName, DownLoadButton.STATE_INSTALLING);
-            downLoadManager.deleteTask(sqlDownLoadInfo.getTaskID());
             //根据监听到的信息查找列表相对应的任务，删除对应的任务
             for(TaskInfo taskInfo : listdata){
                 if(taskInfo.getTaskID().equals(sqlDownLoadInfo.getTaskID())){
@@ -431,10 +434,6 @@ public class ListViewAdapter extends BaseAdapter {
             public void onResponse(AppDownLoadBean response) {
                 String downLoadUrl = response.getData().getDownurl();
                 Log.d(TAG, "pkg = " + packageName + " / downLoadUrl = " + downLoadUrl);
-                /*TaskInfo taskInfo = new TaskInfo();
-                taskInfo.setFileName(packageName);
-                taskInfo.setTaskID(packageName);
-                listdata.add(taskInfo);*/
                 downLoadManager.addTask(packageName, downLoadUrl, packageName);
                 holder.btn_item.setState(packageName, DownLoadButton.STATE_DOWNLOADING);
                 listdata = downLoadManager.getAllTask();

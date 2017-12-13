@@ -81,7 +81,7 @@ public class ShopListActivity extends Activity {
 
 
         /**  因为是单例模式进行构建leopard请求，所以请求前需要先进行域名绑定 **/
-        LeopardHttp.bindServer("http://wxwusy.applinzi.com");
+        //LeopardHttp.bindServer("http://wxwusy.applinzi.com");
         packageList = new ArrayList<>();
         mListAll = new ArrayList<>();
         list = new ArrayList<>();
@@ -89,12 +89,12 @@ public class ShopListActivity extends Activity {
         downLoadUrlList = new ArrayList<>();
         pkgSizeList = new ArrayList<>();
         searchAdapter = new SearchAdapter(ShopListActivity.this, mListAll, R.layout.list_item, false);
+        getWifiState();
         //下载管理器需要启动一个Service,在刚启动应用的时候需要等Service启动起来后才能获取下载管理器，所以稍微延时获取下载管理器
         handler.sendEmptyMessageDelayed(0, 20);
-
         /*listViewAdapter = new ListViewAdapter(ShopListActivity.this, mListAll, modelList, manager, downLoadUrlList);
         listView.setAdapter(listViewAdapter);*/
-        getWifiState();
+
     }
 
     private com.tmac.filedownloader.download.DownLoadManager manager;
@@ -167,7 +167,6 @@ public class ShopListActivity extends Activity {
         ConnectivityManager connectMgr = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
         //NetworkInfo mobNetInfo = connectMgr.getNetworkInfo(ConnectivityManager.TYPE_MOBILE);
         NetworkInfo wifiNetInfo = connectMgr.getNetworkInfo(ConnectivityManager.TYPE_WIFI);
-
         if ( wifiNetInfo.isConnected() && wifiNetInfo.getState() == NetworkInfo.State.CONNECTED) {// unconnect network
             listView.setVisibility(View.VISIBLE);
             disConn_Img.setVisibility(View.GONE);

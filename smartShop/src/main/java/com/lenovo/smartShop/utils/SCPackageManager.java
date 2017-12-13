@@ -104,6 +104,16 @@ public class SCPackageManager {
         return FILE_NOT_EXIST;
     }
 
+    public static boolean queryAppIsNotInstall(File[] files, String packageName){
+        for (File file : files){
+            Log.d(TAG, "name = " + file.getName());
+            if(file.getName().equals("(" + packageName + ")" + packageName)){
+                return true;
+            }
+        }
+        return false;
+    }
+
     public static void queryAppInstallPackage(final String packageName, final int size, final String md5Str, final QueryInstallPackage callback){
         File specItemDir = new File(PATH);
         final File[] files = specItemDir.listFiles();

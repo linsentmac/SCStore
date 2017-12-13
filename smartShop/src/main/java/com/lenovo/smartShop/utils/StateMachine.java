@@ -13,6 +13,7 @@ import com.lenovo.smartShop.bean.AppDetailInfoBean;
 import com.lenovo.smartShop.bean.AppListBean;
 import com.lenovo.smartShop.view.DownLoadButton;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -47,11 +48,14 @@ public class StateMachine {
         return mInstace;
     }
 
+    private File[] files;
     public void initState(final ArrayList<AppListBean.DataBean.DatalistBean> mListAll, final Context context){
         mContext = context;
         new Thread(new Runnable() {
             @Override
             public void run() {
+                File specItemDir = new File(SCPackageManager.PATH);
+                files = specItemDir.listFiles();
                 for (AppListBean.DataBean.DatalistBean datalistBean : mListAll){
                     String appPackageName = datalistBean.getPackageName();
                     int sizeL = datalistBean.getSize();
@@ -61,8 +65,9 @@ public class StateMachine {
                     if(SCPackageManager.isAppInstalled(context, appPackageName)){
                         Log.d(TAG, "Complete");
                         setDownLoadState(appPackageName, DownLoadButton.STATE_COMPLETE);
-                    }else {
-                        getApkServerMd5Str(mContext, detailInfoUrl, appPackageName, sizeL, true);
+                    }else if(SCPackageManager.queryAppIsNotInstall(files, appPackageName)){
+                        setDownLoadState(appPackageName, DownLoadButton.STATE_INSTALL);
+                        //getApkServerMd5Str(mContext, detailInfoUrl, appPackageName, sizeL, true);
                     }
                 }
 
