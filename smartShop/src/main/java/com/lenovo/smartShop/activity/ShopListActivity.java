@@ -3,6 +3,7 @@ package com.lenovo.smartShop.activity;
 import android.Manifest;
 import android.app.Activity;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.net.ConnectivityManager;
@@ -11,8 +12,14 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.support.v4.content.PermissionChecker;
+import android.support.v7.app.AlertDialog;
 import android.util.Log;
+import android.view.Display;
+import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewGroup;
+import android.view.Window;
+import android.view.WindowManager;
 import android.widget.AdapterView;
 import android.widget.ImageView;
 import android.widget.ListView;
@@ -347,6 +354,7 @@ public class ShopListActivity extends Activity {
         super.onStop();
         Log.d(TAG, "onStop");
         if(listViewAdapter != null){
+            Log.d(TAG, "saveAllTaskInfo");
             listViewAdapter.saveAllTaskInfo();
         }
     }
@@ -381,6 +389,39 @@ public class ShopListActivity extends Activity {
         this.startActivity(intent);*//*
         super.onBackPressed();
     }*/
+
+    @Override
+    public void onBackPressed() {
+        //super.onBackPressed();
+        String message;
+        int count = listViewAdapter.getDownloadCount();
+        if(count == 0){
+            message = "确定要退出吗?";
+        }else {
+            message = "当前还有" + count + "个任务在下载, 确定要退出吗?";
+        }
+        showPasswordDialog(message);
+    }
+
+    private void showPasswordDialog(String name){
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setMessage(name);
+        builder.setNegativeButton("取消", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+
+            }
+        });
+        builder.setPositiveButton("确定", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                finish();
+            }
+        });
+        AlertDialog dialog = builder.create();
+        dialog.show();
+
+    }
 
     private void getDownLoadUrl(String url, final String packageName, final boolean sort){
         OkHttpClientUtil.getInstance()._getAsyn(url, new OkHttpClientUtil.ResultCallback<AppDetailInfoBean>() {

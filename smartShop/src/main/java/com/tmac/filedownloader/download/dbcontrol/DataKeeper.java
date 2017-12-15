@@ -2,8 +2,10 @@ package com.tmac.filedownloader.download.dbcontrol;
 
 import android.content.ContentValues;
 import android.content.Context;
+import android.content.res.TypedArray;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
+import android.util.Log;
 
 import com.tmac.filedownloader.download.dbcontrol.bean.SQLDownLoadInfo;
 
@@ -50,7 +52,10 @@ public class DataKeeper {
             }
             cursor.close();
             db.close();
+            Log.d("SC-DLM", " save success!");
+
         }catch(Exception e){
+            Log.d("SC-DLM", " save failed! " + e.getMessage());
             doSaveTimes ++;
             if(doSaveTimes < 5){ //最多只做5次数据保存，降低数据保存失败率
                 saveDownLoadInfo(downloadInfo);
@@ -116,6 +121,7 @@ public class DataKeeper {
                     "SELECT * from " + SQLiteHelper.TABLE_NAME + " WHERE userID = '" + userID +"'", null);
             while(cursor.moveToNext()){
                 SQLDownLoadInfo downloadinfo = new SQLDownLoadInfo();
+                Log.d("SC-DLM", "downLoadSize = " + cursor.getLong(cursor.getColumnIndex("downLoadSize")));
                 downloadinfo.setDownloadSize(cursor.getLong(cursor.getColumnIndex("downLoadSize")));
                 downloadinfo.setFileName(cursor.getString(cursor.getColumnIndex("fileName")));
                 downloadinfo.setFilePath(cursor.getString(cursor.getColumnIndex("filePath")));

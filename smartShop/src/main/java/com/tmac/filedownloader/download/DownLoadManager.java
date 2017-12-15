@@ -3,6 +3,7 @@ package com.tmac.filedownloader.download;
 
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.util.Log;
 
 import com.tmac.filedownloader.download.DownLoader.DownLoadSuccess;
 import com.tmac.filedownloader.download.dbcontrol.DataKeeper;
@@ -39,7 +40,7 @@ public class DownLoadManager {
     private ThreadPoolExecutor pool;
     
     /**用户ID,默认值man*/
-    private String userID = "luffy";
+    private String userID = "smartcast";
 
     private SharedPreferences sharedPreferences;
 
@@ -69,7 +70,7 @@ public class DownLoadManager {
             }
         };
         sharedPreferences = mycontext.getSharedPreferences("UserInfo", Context.MODE_PRIVATE);
-        userID = sharedPreferences.getString("UserID","luffy");
+        userID = sharedPreferences.getString("UserID","smartcast");
         recoverData(mycontext, userID);
     }
     
@@ -336,6 +337,7 @@ public class DownLoadManager {
         for (int i = 0; i < listSize; i++) {
             DownLoader deletedownloader = taskList.get(i);
             deletedownloader.saveTask();
+            Log.d("SC-DLM", "saveAllTaskInfo");
         }
     }
 

@@ -3,6 +3,7 @@ package com.tmac.filedownloader.download;
 import android.content.Context;
 import android.os.Handler;
 import android.os.Message;
+import android.util.Log;
 
 import com.lenovo.smartShop.utils.BufferedRandomAccessFile;
 import com.tmac.filedownloader.download.dbcontrol.DataKeeper;
@@ -105,6 +106,8 @@ public class DownLoader {
     public void saveTask(){
         if(downLoadThread != null){
             downLoadThread.saveTaskInfo();
+            Log.d("SC-DLM", " downLoadThread saveTaskInfo");
+
         }
     }
     
@@ -356,7 +359,9 @@ public class DownLoader {
      * (保存下载信息至数据库) 
      */
     private void saveDownloadInfo(){
-            if(isSupportBreakpoint){
+        Log.d("SC-DLM", " downLoad saveDownloadInfo");
+        if(isSupportBreakpoint){
+            Log.d("SC-DLM", " downLoad saveDownloadInfo " + downFileSize);
                 sqlDownLoadInfo.setDownloadSize(downFileSize);
                 datakeeper.saveDownLoadInfo(sqlDownLoadInfo);
             }
