@@ -4,6 +4,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Build;
+import android.os.Bundle;
 import android.os.Environment;
 import android.os.Handler;
 import android.os.HandlerThread;
@@ -56,7 +57,8 @@ public class DownLoadManager {
             public void handleMessage(Message msg) {
                 super.handleMessage(msg);
                 File file = (File) msg.obj;
-                installPacakageByPm(file);
+                //installPacakageByPm(file);
+                installApk(file);
             }
         };
     }
@@ -290,7 +292,6 @@ public class DownLoadManager {
 
 
     }
-
 
 
     public void sendInstallMessage(File file){
