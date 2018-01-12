@@ -208,6 +208,8 @@ public class DownLoader {
                     urlConn = (HttpURLConnection)url.openConnection();
                     urlConn.setConnectTimeout(5000);
                     urlConn.setReadTimeout(10000);
+                    urlConn.setRequestProperty("Cookie", "channelid=18540");
+                    urlConn.setRequestProperty("User-Info","mfr=Lenovo;model=K910;devid=863664000004555;devidty=imei;osty=android;osver=6.0;userip=125.71.215.92");
                     if(fileSize < 1){//第一次下载，初始化
                         openConnention();
                     }else{
@@ -318,6 +320,9 @@ public class DownLoader {
         
         private void openConnention() throws Exception{
             long urlfilesize = urlConn.getContentLength();
+            Log.d("SC-Tmac", "Url File Size = " + urlfilesize + "/ pkg = " + sqlDownLoadInfo.getTaskID());
+            Log.d("SC-Tmac", "Url Content Length = " + urlConn.getHeaderField("Content-Length"));
+            Log.d("SC-Tmac", "Url Conn Msg = " + urlConn.getResponseMessage());
             if(urlfilesize > 0){
                 isFolderExist();
                 localFile = new BufferedRandomAccessFile (TEMP_FILEPATH + "/(" + FileHelper.filterIDChars(sqlDownLoadInfo.getTaskID()) + ")" + sqlDownLoadInfo.getFileName(),"rwd");

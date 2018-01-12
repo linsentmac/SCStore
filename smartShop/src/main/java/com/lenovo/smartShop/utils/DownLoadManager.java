@@ -2,16 +2,22 @@ package com.lenovo.smartShop.utils;
 
 import android.content.Context;
 import android.content.Intent;
+import android.content.pm.IPackageInstallObserver;
+import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
 import android.os.Handler;
 import android.os.HandlerThread;
+import android.os.IBinder;
 import android.os.Message;
+import android.os.RemoteException;
+import android.os.UserHandle;
 import android.support.v4.content.FileProvider;
 import android.util.Log;
 import android.widget.ListView;
+import android.widget.Toast;
 
 import com.lenovo.smartShop.R;
 import com.lenovo.smartShop.activity.ShopListActivity;
@@ -58,7 +64,8 @@ public class DownLoadManager {
                 super.handleMessage(msg);
                 File file = (File) msg.obj;
                 //installPacakageByPm(file);
-                installApk(file);
+                //installApk(file);
+                installSilentWithReflection(mContext, file);
             }
         };
     }
@@ -297,7 +304,7 @@ public class DownLoadManager {
     public void sendInstallMessage(File file){
         Message msg = new Message();
         msg.obj = file;
-        mHandler.sendMessage(msg);
+        mHandler.sendMessageDelayed(msg, 1000);
     }
 
     public void installPackageByReflect(File file){
@@ -311,17 +318,27 @@ public class DownLoadManager {
             method = activityTherad.getMethod("getPackageManager", paramTypes);
             Object PackageManagerService = method.invoke(activityTherad);
             pmService = PackageManagerService.getClass();
-            Class<?> paramTypes1[] =getParamTypes(pmService, "installPackage");
-            method = pmService.getMethod("installPackage", paramTypes1);
-            method.invoke(PackageManagerService, (Object) getUriForFile(mContext, file), null, 0, null);
+            Class<?> paramTypes1[] =getParamTypes(pmService, "installPackageAsUser");
+            method = pmService.getMethod("installPackageAsUser", paramTypes1);
+            //method.invoke(PackageManagerService, (Object) getUriForFile(mContext, file), null, 0, null);
+            method.invoke(PackageManagerService, new Object[] {Uri.fromFile(file), new IPackageInstallObserver.Stub() {
+                @Override
+                public void packageInstalled(String pkgName, int resultCode) throws RemoteException {
+                    Log.d(TAG, "packageInstalled = " + pkgName + "; resultCode = " + resultCode) ;
+                }
+            }, Integer.valueOf(2), file.getName(), null, null, 0});
         } catch (ClassNotFoundException e) {
             e.printStackTrace();
+            Log.d(TAG, "ClassNotFoundException ......" + e.getMessage());
         } catch (NoSuchMethodException e) {
             e.printStackTrace();
+            Log.d(TAG, "NoSuchMethodException ......" + e.getMessage());
         } catch (IllegalAccessException e) {
             e.printStackTrace();
+            Log.d(TAG, "IllegalAccessException ......" + e.getMessage());
         } catch (InvocationTargetException e) {
             e.printStackTrace();
+            Log.d(TAG, "InvocationTargetException ......" + e.getMessage());
         }
 
     }
@@ -337,6 +354,49 @@ public class DownLoadManager {
             cs = mtd[i].getParameterTypes();
         }
         return cs;
+    }
+
+    private void silentInstall(File file){
+        try
+        {
+            //反射拿到Service Manager，然后调用getService获取IBinder对象
+            Class<?> clazz = Class.forName("android.os.ServiceManager");
+            Method method_getService = clazz.getMethod("getService",
+                    String.class);
+            IBinder bind = (IBinder) method_getService.invoke(null, "package");
+            /*IPackageManager iPm = IPackageManager.Stub.asInterface(bind);
+            //调用安装函数
+            iPm.installPackage(Uri.fromFile(file), null, 2, file.getName());*/
+        } catch (Exception e)
+        {
+            e.printStackTrace();
+        }
+
+    }
+
+    public void installSilentWithReflection(final Context context, File apkFile) {
+        try {
+            PackageManager packageManager = context.getPackageManager();
+            Method method = packageManager.getClass().getDeclaredMethod("installPackage",
+                    new Class[] {Uri.class, IPackageInstallObserver.class, int.class, String.class} );
+            method.setAccessible(true);
+            Uri apkUri = Uri.fromFile(apkFile);
+            Log.d(TAG, "apkUri = " + apkUri + " /package = " + apkFile.getName());
+            method.invoke(packageManager, new Object[] {apkUri, new IPackageInstallObserver.Stub() {
+                @Override
+                public void packageInstalled(String pkgName, int resultCode) throws RemoteException {
+                    Log.d(TAG, "packageInstalled = " + pkgName + "; resultCode = " + resultCode);
+                }
+            }, Integer.valueOf(2), apkFile.getName()});
+            Log.d(TAG, "install ending ......");
+            //PackageManager.INSTALL_REPLACE_EXISTING = 2;
+        } catch (NoSuchMethodException e) {
+            e.printStackTrace();
+            Log.d(TAG, "NoSuchMethodException " + e.getMessage());
+        } catch (Exception e) {
+            e.printStackTrace();
+            Log.d(TAG, "install error " + e.getMessage());
+        }
     }
 
 }

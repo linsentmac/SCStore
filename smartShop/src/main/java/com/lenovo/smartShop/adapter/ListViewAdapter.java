@@ -143,6 +143,7 @@ public class ListViewAdapter extends BaseAdapter {
         holder.tv_item_download.setText(data.get(position).getDownloadCount());
         holder.tv_item_size.setText(DataFormatConvert.formatData(data.get(position).getSize()));
         holder.tv_item_desc.setText(data.get(position).getTypeName());
+        Log.d(TAG, "iconAddr = " + data.get(position).getIconAddr());
         Glide.with(context).load(data.get(position).getIconAddr()).diskCacheStrategy(DiskCacheStrategy.RESULT).into(holder.iv_item);
 
         final String packageName = data.get(position).getPackageName();
@@ -256,6 +257,8 @@ public class ListViewAdapter extends BaseAdapter {
                 if(taskInfo.getTaskID().equals(sqlDownLoadInfo.getTaskID())){
                     taskInfo.setDownFileSize(sqlDownLoadInfo.getDownloadSize());
                     taskInfo.setFileSize(sqlDownLoadInfo.getFileSize());
+                    Log.d(TAG, "****** downLoadSize = " + sqlDownLoadInfo.getDownloadSize() + "\n" +
+                                "****** fileSize = " + sqlDownLoadInfo.getFileSize());
                     percent = ((int)(100 * sqlDownLoadInfo.getDownloadSize()/sqlDownLoadInfo.getFileSize()));
                     // 多了这个会导致其他button无法点击,因为一直在刷新
                     //ListViewAdapter.this.notifyDataSetChanged();

@@ -5,6 +5,7 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.pm.PackageManager;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
@@ -35,6 +36,7 @@ import com.lenovo.smartShop.bean.AppDownLoadBean;
 import com.lenovo.smartShop.bean.AppListBean;
 import com.lenovo.smartShop.model.DownLoadModel;
 import com.lenovo.smartShop.utils.HttpUtils;
+import com.lenovo.smartShop.utils.InstalledReceiver;
 import com.lenovo.smartShop.utils.MyApplication;
 import com.lenovo.smartShop.utils.OkHttpClientUtil;
 import com.lenovo.smartShop.utils.StateMachine;
@@ -69,6 +71,7 @@ public class ShopListActivity extends Activity {
     private SearchAdapter searchAdapter;
     private ListViewAdapter listViewAdapter;
     private WifiControl mWifiControl;
+    private InstalledReceiver installedReceiver;
     private static final int MSG_NETWORK_RESPONSE = 0;
     private static final long DELAY_TIME = 5 * 1000;
     private final String TAG = "SC-ShopList";
@@ -101,7 +104,16 @@ public class ShopListActivity extends Activity {
         handler.sendEmptyMessageDelayed(0, 20);
         /*listViewAdapter = new ListViewAdapter(ShopListActivity.this, mListAll, modelList, manager, downLoadUrlList);
         listView.setAdapter(listViewAdapter);*/
+        registerReceiver();
+    }
 
+    private void registerReceiver(){
+        installedReceiver = new InstalledReceiver();
+        IntentFilter filter = new IntentFilter();
+        filter.addAction(Intent.ACTION_PACKAGE_ADDED);
+        filter.addAction(Intent.ACTION_PACKAGE_REMOVED);
+        filter.addDataScheme("package");
+        registerReceiver(installedReceiver, filter);
     }
 
     private com.tmac.filedownloader.download.DownLoadManager manager;
@@ -369,6 +381,7 @@ public class ShopListActivity extends Activity {
         if(listViewAdapter != null){
             listViewAdapter.stopAllTask();
         }
+        unregisterReceiver(installedReceiver);
     }
 
 

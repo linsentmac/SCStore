@@ -42,7 +42,7 @@
         </provider>
 
         <!--<action android:name="android.intent.action.PACKAGE_ADDED" />-->
-        <receiver android:name="com.lenovo.smartShop.utils.InstalledReceiver" >
+        <!--<receiver android:name="com.lenovo.smartShop.utils.InstalledReceiver" >
             <intent-filter>
 
                 <action android:name="android.intent.action.PACKAGE_REMOVED" />
@@ -51,7 +51,7 @@
 
                 <data android:scheme="package" />
             </intent-filter>
-        </receiver>
+        </receiver>-->
 
         <receiver android:name=".utils.WifiStateReceiver">
             <intent-filter>
