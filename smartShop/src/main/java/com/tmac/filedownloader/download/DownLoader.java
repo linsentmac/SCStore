@@ -55,6 +55,8 @@ public class DownLoader {
     private boolean ondownload = false;  
     /**线程池 */
     private ThreadPoolExecutor pool;
+
+    private static final String TAG = "SC-Tmac-DownLoad";
     
     
     /**
@@ -206,11 +208,25 @@ public class DownLoader {
                     }
                     url = new URL(sqlDownLoadInfo.getUrl());
                     urlConn = (HttpURLConnection)url.openConnection();
+                    urlConn.setRequestMethod("GET");
                     urlConn.setConnectTimeout(5000);
                     urlConn.setReadTimeout(10000);
                     urlConn.setRequestProperty("Cookie", "channelid=18540");
                     urlConn.setRequestProperty("User-Info","mfr=Lenovo;model=K910;devid=863664000004555;devidty=imei;osty=android;osver=6.0;userip=125.71.215.92");
+
                     if(fileSize < 1){//第一次下载，初始化
+                        if(!urlConn.getContentType().contains("application")
+                                || urlConn.getContentLength() < 1000){
+                            Log.d(TAG, "invaild Http Request : type = " + urlConn.getContentType()
+                                    + "\n" + "length = " + urlConn.getContentLength()
+                                    + "\n" + "downloadtimes = " + downloadtimes);
+                            downloadtimes++;
+                            if(downloadtimes == maxdownloadtimes){
+                                resetNotice(urlConn);
+                                break;
+                            }
+                            continue;
+                        }
                         openConnention();
                     }else{
                         if(new File(TEMP_FILEPATH + "/(" + FileHelper.filterIDChars(sqlDownLoadInfo.getTaskID()) + ")" + sqlDownLoadInfo.getFileName()).exists()){
@@ -227,6 +243,10 @@ public class DownLoader {
                     inputStream = urlConn.getInputStream();
                     byte[] buffer = new byte[1024 * 4];
                     int length = -1;
+                    Log.d(TAG, "download = start " + fileSize
+                                + "\n" + "type = " + urlConn.getContentType()
+                                + "\n" + "code = " + urlConn.getResponseCode()
+                                + "\n" + "length = " + urlConn.getContentLength());
                     while((length = inputStream.read(buffer)) != -1 && isdownloading){
                         localFile.write(buffer, 0, length);
                         downFileSize += length;
@@ -235,7 +255,9 @@ public class DownLoader {
                             progress = nowProgress;
                             handler.sendEmptyMessage(TASK_PROGESS);
                         }
+                        //Log.d(TAG, "downloading " + downFileSize);
                     }
+                    Log.d(TAG, "download = end ");
                     //下载完了
                     if(downFileSize == fileSize ){
                         boolean renameResult = RenameFile();
@@ -252,6 +274,7 @@ public class DownLoader {
                     }
                     downloadtimes = maxdownloadtimes;
                 } catch (Exception e) {
+                    Log.d(TAG, "download error : " + e.getMessage());
                     if(isdownloading){
                         if(isSupportBreakpoint){
                             downloadtimes ++;
@@ -317,12 +340,13 @@ public class DownLoader {
                 saveDownloadInfo();
             }
         }
-        
+
         private void openConnention() throws Exception{
             long urlfilesize = urlConn.getContentLength();
-            Log.d("SC-Tmac", "Url File Size = " + urlfilesize + "/ pkg = " + sqlDownLoadInfo.getTaskID());
-            Log.d("SC-Tmac", "Url Content Length = " + urlConn.getHeaderField("Content-Length"));
-            Log.d("SC-Tmac", "Url Conn Msg = " + urlConn.getResponseMessage());
+            Log.d(TAG, "Url File Size = " + urlfilesize + "/ pkg = " + sqlDownLoadInfo.getTaskID());
+            Log.d(TAG, "Url Content Length = " + urlConn.getHeaderField("Content-Length"));
+            Log.d(TAG, "Url Conn Code = " + urlConn.getResponseCode());
+            Log.d(TAG, "Url Conn Type = " + urlConn.getContentType());
             if(urlfilesize > 0){
                 isFolderExist();
                 localFile = new BufferedRandomAccessFile (TEMP_FILEPATH + "/(" + FileHelper.filterIDChars(sqlDownLoadInfo.getTaskID()) + ")" + sqlDownLoadInfo.getFileName(),"rwd");
@@ -445,6 +469,20 @@ public class DownLoader {
         }
         if(downloadsuccess != null){
             downloadsuccess.onTaskSeccess(sqlDownLoadInfo.getTaskID());
+        }
+    }
+
+    private void resetNotice(HttpURLConnection urlConn){
+        if(urlConn != null){
+            urlConn.disconnect();
+        }
+        if(!listenerMap.isEmpty()){
+            Collection<DownLoadListener> c = listenerMap.values();
+            Iterator<DownLoadListener> it = c.iterator();
+            while(it.hasNext()){
+                DownLoadListener listener = (DownLoadListener)it.next();
+                listener.onReset(getSQLDownLoadInfo());
+            }
         }
     }
     

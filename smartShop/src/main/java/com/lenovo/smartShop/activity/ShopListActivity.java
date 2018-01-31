@@ -101,7 +101,7 @@ public class ShopListActivity extends Activity {
         searchAdapter = new SearchAdapter(ShopListActivity.this, mListAll, R.layout.list_item, false);
         getWifiState();
         //下载管理器需要启动一个Service,在刚启动应用的时候需要等Service启动起来后才能获取下载管理器，所以稍微延时获取下载管理器
-        handler.sendEmptyMessageDelayed(0, 20);
+        handler.sendEmptyMessageDelayed(0, 50);
         /*listViewAdapter = new ListViewAdapter(ShopListActivity.this, mListAll, modelList, manager, downLoadUrlList);
         listView.setAdapter(listViewAdapter);*/
         registerReceiver();
@@ -123,12 +123,17 @@ public class ShopListActivity extends Activity {
             super.handleMessage(msg);
             /*获取下载管理器*/
             manager = DownLoadService.getDownLoadManager();
-            /*设置用户ID，客户端切换用户时可以显示相应用户的下载任务*/
-            manager.changeUser("smartcast");
-            /*断点续传需要服务器的支持，设置该项时要先确保服务器支持断点续传功能*/
-            manager.setSupportBreakpoint(true);
-            listViewAdapter = new ListViewAdapter(ShopListActivity.this, mListAll, modelList, manager, downLoadUrlList);
-            listView.setAdapter(listViewAdapter);
+            if(manager != null){
+                /*设置用户ID，客户端切换用户时可以显示相应用户的下载任务*/
+                manager.changeUser("smartcast");
+                /*断点续传需要服务器的支持，设置该项时要先确保服务器支持断点续传功能*/
+                manager.setSupportBreakpoint(true);
+                listViewAdapter = new ListViewAdapter(ShopListActivity.this, mListAll, modelList, manager, downLoadUrlList);
+                listView.setAdapter(listViewAdapter);
+            }else {
+                sendEmptyMessageDelayed(0, 50);
+            }
+
             //adapter = new ListAdapter(MainActivity.this,manager);
             //listview.setAdapter(adapter);
             //userbutton.setText("用户 : " + manager.getUserID());

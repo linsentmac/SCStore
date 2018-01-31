@@ -242,11 +242,14 @@ public class ListViewAdapter extends BaseAdapter {
     private int percent;
     private class DowloadManagerListener implements DownLoadListener{
 
+        private boolean resetTask;
+
         @Override
         public void onStart(SQLDownLoadInfo sqlDownLoadInfo) {
             Log.d(TAG, "==============onStart " + sqlDownLoadInfo.getTaskID());
             currentPencent = 0;
             addDownloadingTask(sqlDownLoadInfo.getTaskID());
+            resetTask = false;
         }
 
         @Override
@@ -270,6 +273,7 @@ public class ListViewAdapter extends BaseAdapter {
             ListView listView = ShopListActivity.listView;
             Log.d(TAG, "============== STATE_DOWNLOADING " + percent + " " + currentPencent + "\n" + listView.getFirstVisiblePosition() + "\n" + listView.getLastVisiblePosition());
             if (percent > (StateMachine.getInstance().getDownloadPercent(sqlDownLoadInfo.getTaskID()))
+                    && percent <= 100
                     && position >= listView.getFirstVisiblePosition()
                     && position <= listView.getLastVisiblePosition()) {
                 currentPencent = percent;
@@ -277,6 +281,17 @@ public class ListViewAdapter extends BaseAdapter {
                 DownLoadButton btn = listView.getChildAt(positionInListView).findViewById(R.id.btn_item);
                 Log.d(TAG, "==============  " + percent);
                 btn.setDownLoadProgress(DownLoadButton.STATE_DOWNLOADING, percent, sqlDownLoadInfo.getTaskID());
+            }else if(percent > 100){
+                if(!resetTask){
+                    resetTask = true;
+                    String packageName = sqlDownLoadInfo.getTaskID();
+                    String url = sqlDownLoadInfo.getUrl();
+                    removeDownloadingTask(packageName);
+                    downLoadManager.stopTask(packageName);
+                    downLoadManager.deleteTask(packageName);
+                    addDownloadTask(packageName, url);
+                    Log.d(TAG, "********** percent = " + percent);
+                }
             }
         }
 
@@ -323,6 +338,17 @@ public class ListViewAdapter extends BaseAdapter {
             }
             //com.lenovo.smartShop.utils.DownLoadManager.getInstance(context).installApk(new File(FileHelper.getFileDefaultPath(), "/(" + sqlDownLoadInfo.getFileName() + ")" + sqlDownLoadInfo.getFileName()));
             com.lenovo.smartShop.utils.DownLoadManager.getInstance(context).sendInstallMessage(new File(FileHelper.getFileDefaultPath(), "/(" + sqlDownLoadInfo.getFileName() + ")" + sqlDownLoadInfo.getFileName()));
+        }
+
+        @Override
+        public void onReset(SQLDownLoadInfo sqlDownLoadInfo) {
+            Log.d(TAG, "============== onReset : " + sqlDownLoadInfo.getTaskID());
+            String packageName = sqlDownLoadInfo.getTaskID();
+            String url = sqlDownLoadInfo.getUrl();
+            removeDownloadingTask(packageName);
+            downLoadManager.stopTask(packageName);
+            downLoadManager.deleteTask(packageName);
+            addDownloadTask(packageName, url);
         }
     }
 

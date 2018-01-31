@@ -16,7 +16,7 @@ public class DataFormatConvert {
         float sizeF = (float) size/1024/1024;
         DecimalFormat df = new DecimalFormat("0.00");
         String appSize = df.format(sizeF) + "M";
-        Log.d(TAG, "appSize = " + appSize);
+        Log.d(TAG, "size = " + size + " / appSize = " + appSize);
         return appSize;
     }
 

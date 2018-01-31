@@ -44,4 +44,6 @@ public interface DownLoadListener {
      * @param sqlDownLoadInfo 下载任务对象
      */
     public void onSuccess(SQLDownLoadInfo sqlDownLoadInfo);
+
+    public void onReset(SQLDownLoadInfo sqlDownLoadInfo);
 }
